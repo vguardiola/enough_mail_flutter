@@ -36,12 +36,10 @@ Widget buildViewerForDownloadedMessage(MimeMessage mimeMessage) {
 Future handleMailto(Uri mailto, MimeMessage mimeMessage) {
   // in reality you would get this from your account data
   final fromAddress = MailAddress('My Name', 'email@domain.com');
-  final messageBuilder =
-      MessageBuilder.prepareMailtoBasedMessage(mailto, fromAddress);
+  final messageBuilder = MessageBuilder.prepareMailtoBasedMessage(mailto, fromAddress);
   // in reality navigate to compose screen, e.g.
   // return locator<NavigationService>()
   //     .push(Routes.mailCompose, arguments: messageBuilder);
-  print(
-      'generated message: ${messageBuilder.buildMimeMessage().renderMessage()}');
+  print('generated message: ${messageBuilder.buildMimeMessage().renderMessage()}');
   return Future.value();
 }

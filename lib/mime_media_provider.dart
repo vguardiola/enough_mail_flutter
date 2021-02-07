@@ -10,8 +10,7 @@ class MimeMediaProviderFactory {
     if (mimePart.mediaType?.isText ?? false) {
       return TextMediaProvider(name, mediaType, mimePart.decodeContentText());
     } else {
-      return MemoryMediaProvider(
-          name, mediaType, mimePart.decodeContentBinary(),
+      return MemoryMediaProvider(name, mediaType, mimePart.decodeContentBinary(),
           description: mimeMessage.decodeSubject());
     }
   }

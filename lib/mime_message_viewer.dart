@@ -5,13 +5,13 @@ import 'dart:typed_data';
 import 'package:enough_mail/enough_mail.dart';
 import 'package:enough_mail_flutter/enough_mail_flutter.dart';
 import 'package:enough_mail_flutter/mime_media_provider.dart';
+import 'package:enough_mail_html/enough_mail_html.dart';
 import 'package:enough_media/enough_media.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import 'package:enough_mail_html/enough_mail_html.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
+import 'package:webview_flutter/webview_flutter.dart';
 
 /// Viewer for mime message contents
 class MimeMessageViewer extends StatefulWidget {
@@ -20,8 +20,7 @@ class MimeMessageViewer extends StatefulWidget {
   final bool adjustHeight;
   final bool blockExternalImages;
   final String emptyMessageText;
-  final FutureOr<NavigationDecision> Function(NavigationRequest)
-      navigationDelegate;
+  final FutureOr<NavigationDecision> Function(NavigationRequest) navigationDelegate;
   final Future Function(Uri mailto, MimeMessage mimeMessage) mailtoDelegate;
   final Future Function(InteractiveMediaWidget mediaViewer) showMediaDelegate;
 
@@ -61,8 +60,8 @@ class _HtmlGenerationArguments {
   final bool blockExternalImages;
   final String emptyMessageText;
   final int maxImageWidth;
-  _HtmlGenerationArguments(this.mimeMessage, this.blockExternalImages,
-      this.emptyMessageText, this.maxImageWidth);
+
+  _HtmlGenerationArguments(this.mimeMessage, this.blockExternalImages, this.emptyMessageText, this.maxImageWidth);
 }
 
 class _HtmlViewerState extends State<MimeMessageViewer> {
@@ -83,8 +82,8 @@ class _HtmlViewerState extends State<MimeMessageViewer> {
   void generateHtml(bool blockExternalImages) async {
     _wereExternalImagesBlocked = blockExternalImages;
     _isGenerating = true;
-    final args = _HtmlGenerationArguments(widget.mimeMessage,
-        blockExternalImages, widget.emptyMessageText, widget.maxImageWidth);
+    final args = _HtmlGenerationArguments(
+        widget.mimeMessage, blockExternalImages, widget.emptyMessageText, widget.maxImageWidth);
     _base64EncodedHtml = await compute(_generateHtmlImpl, args);
     if (mounted) {
       setState(() {
@@ -99,8 +98,7 @@ class _HtmlViewerState extends State<MimeMessageViewer> {
       emptyMessageText: args.emptyMessageText,
       maxImageWidth: args.maxImageWidth,
     );
-    return 'data:text/html;base64,' +
-        base64Encode(const Utf8Encoder().convert(html));
+    return 'data:text/html;base64,' + base64Encode(const Utf8Encoder().convert(html));
   }
 
   @override
@@ -127,8 +125,7 @@ class _HtmlViewerState extends State<MimeMessageViewer> {
       return LayoutBuilder(
         builder: (context, constraints) {
           if (!constraints.hasBoundedHeight) {
-            constraints = constraints.copyWith(
-                maxHeight: _webViewHeight ?? _screenHeight);
+            constraints = constraints.copyWith(maxHeight: _webViewHeight ?? _screenHeight);
           }
           return ConstrainedBox(
             constraints: constraints,
@@ -153,14 +150,13 @@ class _HtmlViewerState extends State<MimeMessageViewer> {
       navigationDelegate: widget.navigationDelegate ?? handleNavigationProcess,
       onPageFinished: widget.adjustHeight
           ? (url) async {
-              var scrollHeightText = await _webViewController
-                  .evaluateJavascript('document.body.scrollHeight');
+              var scrollHeightText = await _webViewController.evaluateJavascript('document.body.scrollHeight');
               double height = double.tryParse(scrollHeightText);
               if ((height != null) && mounted) {
                 // && (height < screenHeight)) {
-                // allow to scroll webpages further than the screen height, this
+                // allow to scroll web pages further than the screen height, this
                 // can lead to crashes but we have to live with that for the moment,
-                // until it is fixed by either Flutter or thewebview_flutter plugin
+                // until it is fixed by either Flutter or the webview_flutter plugin
                 setState(() => _webViewHeight = height + 5);
               }
             }
@@ -168,8 +164,7 @@ class _HtmlViewerState extends State<MimeMessageViewer> {
     );
   }
 
-  FutureOr<NavigationDecision> handleNavigationProcess(
-      NavigationRequest request) async {
+  FutureOr<NavigationDecision> handleNavigationProcess(NavigationRequest request) async {
     if (widget.mailtoDelegate != null && request.url.startsWith('mailto:')) {
       final mailto = Uri.parse(request.url);
       await widget.mailtoDelegate(mailto, widget.mimeMessage);
@@ -180,8 +175,7 @@ class _HtmlViewerState extends State<MimeMessageViewer> {
       final cid = request.url.substring('cid://'.length);
       final part = widget.mimeMessage.getPartWithContentId(cid);
       if (part != null) {
-        final mediaProvider =
-            MimeMediaProviderFactory.fromMime(widget.mimeMessage, part);
+        final mediaProvider = MimeMediaProviderFactory.fromMime(widget.mimeMessage, part);
         final mediaWidget = InteractiveMediaWidget(
           mediaProvider: mediaProvider,
         );
@@ -228,8 +222,7 @@ class _ImageViewerState extends State<MimeMessageViewer> {
             return ConstrainedBox(
               constraints: constraints,
               child: ImageInteractiveMedia(
-                  mediaProvider: MimeMediaProviderFactory.fromMime(
-                      widget.mimeMessage, widget.mimeMessage)),
+                  mediaProvider: MimeMediaProviderFactory.fromMime(widget.mimeMessage, widget.mimeMessage)),
             );
           },
         ),
@@ -242,10 +235,8 @@ class _ImageViewerState extends State<MimeMessageViewer> {
       return TextButton(
         onPressed: () {
           if (widget.showMediaDelegate != null) {
-            final mediaProvider = MimeMediaProviderFactory.fromMime(
-                widget.mimeMessage, widget.mimeMessage);
-            final mediaWidget =
-                InteractiveMediaWidget(mediaProvider: mediaProvider);
+            final mediaProvider = MimeMediaProviderFactory.fromMime(widget.mimeMessage, widget.mimeMessage);
+            final mediaWidget = InteractiveMediaWidget(mediaProvider: mediaProvider);
             widget.showMediaDelegate(mediaWidget);
           } else {
             setState(() => showFullScreen = true);

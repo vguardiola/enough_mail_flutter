@@ -4,7 +4,7 @@ import 'package:enough_media/enough_media.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-/// Downloads the mime message contents if required before showing them within a [MimeMesageViewer].
+/// Downloads the mime message contents if required before showing them within a [MimeMessageViewer].
 class MimeMessageDownloader extends StatefulWidget {
   final MimeMessage mimeMessage;
   final MailClient mailClient;
@@ -109,8 +109,8 @@ class _MimeMessageDownloaderState extends State<MimeMessageDownloader> {
   Future<MimeMessage> downloadMessageContents() async {
     try {
       // print('download message UID ${mimeMessage.uid} for state $this');
-      mimeMessage = await widget.mailClient.fetchMessageContents(mimeMessage,
-          maxSize: widget.maxDownloadSize, markAsSeen: widget.markAsSeen);
+      mimeMessage = await widget.mailClient
+          .fetchMessageContents(mimeMessage, maxSize: widget.maxDownloadSize, markAsSeen: widget.markAsSeen);
       if (widget.onDownloaded != null) {
         widget.onDownloaded(mimeMessage);
       }
@@ -118,15 +118,13 @@ class _MimeMessageDownloaderState extends State<MimeMessageDownloader> {
       if (widget.onDownloadError != null) {
         widget.onDownloadError(e);
       } else {
-        print(
-            'Unable to download message ${mimeMessage.decodeSubject()}: $e $s');
+        print('Unable to download message ${mimeMessage.decodeSubject()}: $e $s');
       }
     } catch (e, s) {
       print(
           'unexpected exception while downloading message with UID ${mimeMessage.uid} / ID ${mimeMessage.sequenceId}: $e $s');
       if (widget.onDownloadError != null) {
-        widget.onDownloadError(MailException(widget.mailClient, e.toString(),
-            stackTrace: s, details: e));
+        widget.onDownloadError(MailException(widget.mailClient, e.toString(), stackTrace: s, details: e));
       }
     }
     return mimeMessage;
